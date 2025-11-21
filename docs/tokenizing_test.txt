@@ -1,0 +1,14 @@
+File ini digunakan untuk menguji proses pembacaan file pada tugas Natural Language Processing (NLP). 
+Tujuan dari halaman ini adalah menyediakan teks sederhana yang dapat dibaca oleh program Python 
+yang telah dibuat untuk menangani berbagai jenis file, seperti TXT, DOCX, dan PDF.
+
+Pada proyek ini, setiap anggota kelompok memiliki tugas masing-masing. 
+Orang pertama bertanggung jawab untuk membaca file dalam tiga format berbeda. 
+Orang kedua melakukan preprocessing seperti lowercase, pembersihan tanda baca, 
+penghapusan angka, serta perapian whitespace. 
+Orang ketiga melakukan tokenizing dan frekuensi kata, sedangkan 
+orang keempat membuat visualisasi dan presentasi akhir.
+
+Dokumen satu halaman ini diharapkan dapat membantu dalam melakukan pengujian 
+agar semua proses berjalan dengan benar mulai dari file handling, preprocessing, 
+tokenisasi, hingga visualisasi data.
