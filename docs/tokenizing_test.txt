@@ -1,14 +1,11 @@
-File ini digunakan untuk menguji proses pembacaan file pada tugas Natural Language Processing (NLP). 
-Tujuan dari halaman ini adalah menyediakan teks sederhana yang dapat dibaca oleh program Python 
-yang telah dibuat untuk menangani berbagai jenis file, seperti TXT, DOCX, dan PDF.
+File ini disiapkan sebagai bahan uji yang digunakan dalam proses pembacaan dan pemrosesan berbagai jenis file dalam tugas Natural Language Processing (NLP). Dokumen sederhana seperti ini memiliki peran penting karena berfungsi sebagai landasan awal untuk memastikan bahwa setiap tahap dalam pipeline NLP dapat berjalan dengan baik, konsisten, dan sesuai dengan yang diharapkan. Dengan menyediakan teks uji yang tidak terlalu panjang tetapi cukup informatif, anggota kelompok dapat dengan mudah mengevaluasi apakah program yang dibuat benar-benar mampu menangani file dalam berbagai format, seperti TXT, DOCX, dan PDF.
 
-Pada proyek ini, setiap anggota kelompok memiliki tugas masing-masing. 
-Orang pertama bertanggung jawab untuk membaca file dalam tiga format berbeda. 
-Orang kedua melakukan preprocessing seperti lowercase, pembersihan tanda baca, 
-penghapusan angka, serta perapian whitespace. 
-Orang ketiga melakukan tokenizing dan frekuensi kata, sedangkan 
-orang keempat membuat visualisasi dan presentasi akhir.
+Dalam proyek ini, setiap anggota kelompok memiliki peran spesifik untuk memastikan bahwa seluruh tahapan analisis data teks dapat berjalan secara terstruktur. Tugas pertama diberikan kepada anggota yang bertanggung jawab pada proses file handling. Pada tahap ini, ia harus memastikan bahwa program Python mampu membuka dan membaca isi file dari tiga jenis format yang berbeda. Selain memastikan kompatibilitas lintas format, ia juga harus memvalidasi apakah konten yang dibaca tetap utuh tanpa perubahan struktur atau kehilangan karakter penting. Tahap ini sering kali tampak sederhana, namun sebenarnya sangat krusial karena kesalahan pada proses pembacaan dapat berdampak pada seluruh tahapan setelahnya.
 
-Dokumen satu halaman ini diharapkan dapat membantu dalam melakukan pengujian 
-agar semua proses berjalan dengan benar mulai dari file handling, preprocessing, 
-tokenisasi, hingga visualisasi data.
+Anggota kedua kelompok bertugas menangani preprocessing data. Proses ini melibatkan serangkaian langkah pembersihan teks untuk memastikan bahwa data dalam keadaan siap digunakan untuk analisis lebih lanjut. Ia harus melakukan konversi huruf menjadi lowercase agar tidak ada perbedaan pembacaan antara huruf besar dan huruf kecil. Selain itu, ia juga perlu menghapus tanda baca yang tidak relevan, menghilangkan angka yang tidak dibutuhkan, serta merapikan whitespace agar teks menjadi bersih dan konsisten. Preprocessing sangat penting karena kualitas hasil analisis NLP sangat dipengaruhi oleh kebersihan data pada tahap ini.
+
+Selanjutnya, anggota ketiga memiliki tugas yang tidak kalah penting, yaitu melakukan tokenisasi dan menghitung frekuensi kata. Tokenisasi adalah proses memecah teks menjadi unit-unit kecil seperti kata atau token. Hasil tokenisasi inilah yang nantinya digunakan untuk melihat seberapa sering suatu kata muncul di dalam dokumen. Tahap ini membantu memberikan gambaran mengenai kata-kata yang dominan, pola tertentu yang muncul, dan dapat menjadi dasar untuk berbagai analisis lebih lanjut seperti stemming, lemmatization, atau bahkan pembuatan model NLP sederhana. Keakuratan tokenisasi sangat berpengaruh pada hasil frekuensi kata sehingga perlu dilakukan dengan teliti.
+
+Anggota keempat bertanggung jawab membuat visualisasi dan menyusun presentasi akhir. Pada tahap visualisasi, ia dapat membuat grafik seperti bar chart atau word cloud untuk menampilkan kata-kata yang paling sering muncul. Visualisasi ini tidak hanya mempermudah pemahaman, tetapi juga membuat hasil analisis menjadi lebih komunikatif dan menarik secara visual. Setelah itu, ia menyusun presentasi yang merangkum seluruh proses mulai dari pembacaan file, preprocessing, tokenisasi, hingga visualisasi. Presentasi dibuat agar dapat dipahami secara sistematis oleh dosen maupun teman sekelas.
+
+Dokumen ini, meskipun hanya satu halaman, diharapkan dapat membantu seluruh anggota kelompok dalam memastikan bahwa setiap tahap—mulai dari file handling, preprocessing, tokenisasi, hingga visualisasi data—dapat diuji secara menyeluruh. Dengan adanya teks uji ini, seluruh proses dapat diamati, dicek, dan dipastikan berjalan dengan benar sebelum digunakan pada data yang lebih kompleks. Dengan demikian, proyek NLP dapat diselesaikan secara lebih efektif dan tanpa hambatan besar.
