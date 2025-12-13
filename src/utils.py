@@ -22,7 +22,7 @@ def baca_pdf(path_file):
             text += page.extract_text() + "\n"
     return text
 
-def clean_text(text):
+def bersihkan_text(text):
     text = str(text) 
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
