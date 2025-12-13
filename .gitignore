@@ -1,0 +1,44 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# VS Code
+.vscode/
+.history/
+
+# Python packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS-specific
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Tools
+.idea/
+.mypy_cache/
+
+# Matplotlib cache
+.matplotlib/
