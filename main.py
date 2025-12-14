@@ -1,6 +1,6 @@
-from src.utils import baca_txt, baca_docx, baca_pdf, bersihkan_text
-from src.tokenizing import tokenizing, Hitung_frekuensi, tampilkan_frekuensi_kata
-from src.stemming import Stem_tokenizing, tampilkan_hasil_stem
+from src.utils import *
+from src.tokenizing import *
+from src.stemming import *
 import os
 
 directory = "docs"
@@ -17,6 +17,7 @@ for idx, (filename, filepath, exs) in enumerate(files, 1):
     print(f"\n({idx}). Memproses: {filename}")
     
     try:
+        #buat bac file
         if exs == '.txt':
             text = baca_txt(filepath)
         elif exs == '.docx':
@@ -24,17 +25,25 @@ for idx, (filename, filepath, exs) in enumerate(files, 1):
         elif exs == '.pdf':
             text = baca_pdf(filepath) 
 
+        #preprocesing
         text_bersih = bersihkan_text(text)  
 
+        #tokenizing
         tokens = tokenizing(text_bersih)  
-
         frek_token = Hitung_frekuensi(tokens)
+        
         print("\nFrekuensi Token:")
         tampilkan_frekuensi_kata(frek_token)
 
-        tokens_stem = Stem_tokenizing(tokens) 
+        #stemming pake sastarawi
+        token_stem = Stem_tokenizing(tokens)
+        frek_stem = hitung_frekuensi_stem(token_stem)
+
         print("\nHasil Stemming:")
-        tampilkan_hasil_stem(tokens_stem)
+        tampilkan_hasil_stem(frek_stem)
+        kata_gagal = identifikasi_kata_gagal_stem(tokens, token_stem)
+        tampilkan_kata_gagal_stem(kata_gagal)
+
         
     except Exception as e:
         print(f"Error: {e}")
