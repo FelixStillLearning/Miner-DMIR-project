@@ -40,6 +40,10 @@ for idx, (filename, filepath, exs) in enumerate(files, 1):
         frek_stem = hitung_frekuensi_stem(token_stem)
 
         print("\nHasil Stemming:")
+        print(f"\nJumlah kata yang di-stem: {sum(a != b for a, b in zip(tokens, token_stem))}")
+        for asal, stem in zip(tokens, token_stem):
+            if asal != stem:
+                print(f"'{asal}' -> '{stem}'")
         tampilkan_hasil_stem(frek_stem)
         kata_gagal = identifikasi_kata_gagal_stem(tokens, token_stem)
         tampilkan_kata_gagal_stem(kata_gagal)
