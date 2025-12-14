@@ -1,5 +1,5 @@
 import docx
-import pyPDF2
+import PyPDF2
 import string
 import re 
 
@@ -8,7 +8,7 @@ def baca_txt(path_file):
         return file.read()
     
 def baca_docx(path_file):
-    doc = docx.document(path_file)
+    doc = docx.Document(path_file)
     text = []
     for pars in doc.paragraphs:
         text.append(pars.text)
@@ -17,12 +17,14 @@ def baca_docx(path_file):
 def baca_pdf(path_file):
     text = "" 
     with open(path_file, 'rb') as file:
-        reader = pyPDF2.pdfReader(file)
-        for page in reader.page:
+        reader = PyPDF2.PdfReader(file)
+        for page in reader.pages:
             text += page.extract_text() + "\n"
     return text
 
 def bersihkan_text(text):
+    if not text:
+        return ""
     text = str(text) 
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
