@@ -1,55 +1,41 @@
 import re
 
-# Implementasi dasar Algoritma Tala (rule-based, tanpa kamus)
-# Urutan langkah: partikel -> sandang/kepunyaan -> awalan1 -> (cabang) akhiran & awalan2
-
 PARTIKEL = ("lah", "kah", "pun")
 SANDANG = ("nya", "ku", "mu")
-PREFIX1 = ("ber", "bel", "be", "per", "pel", "pe")
-PREFIX2 = ("di", "ter", "ke")
+PREFIX1_GENERIC = ("meng", "men", "mem", "me", "peng", "pen", "pem", "di", "ter", "ke")
+PREFIX2 = ("ber", "bel", "be", "per", "pel", "pe")
 SUFFIX = ("kan", "an", "i")
 
-# Pola khusus konsonan pengganti sesuai aturan Tala
-# menyX -> sX, menya/menyi/menyu/menye/menyo -> s..., memX -> pX, pen(y) -> s..., pemX -> pX
 SPECIAL_PREFIX = (
-    (re.compile(r"^(menya|menyi|menyu|menye|menyo|meny)(.*)$"), lambda m: "s" + m.group(2)),
-    (re.compile(r"^(mema|memi|memu|meme|memo|mem)(.*)$"), lambda m: "p" + m.group(2)),
-    (re.compile(r"^(penya|penyi|penyu|penye|penyo|peny)(.*)$"), lambda m: "s" + m.group(2)),
-    (re.compile(r"^(pema|pemi|pemu|peme|pemo|pem)(.*)$"), lambda m: "p" + m.group(2)),
+    (re.compile(r"^meny([aiueo].*)$"), lambda m: "s" + m.group(1)),
+    (re.compile(r"^mem([aiueo].*)$"), lambda m: "p" + m.group(1)),
+    (re.compile(r"^mem([^aiueo].*)$"), lambda m: m.group(1)),
+    (re.compile(r"^peny([aiueo].*)$"), lambda m: "s" + m.group(1)),
+    (re.compile(r"^pem([aiueo].*)$"), lambda m: "p" + m.group(1)),
+    (re.compile(r"^pem([^aiueo].*)$"), lambda m: m.group(1)),
 )
 
 MIN_ROOT_LEN = 2
+MIN_SYLLABLES = 2 
+VOWELS = set("aiueo")
 
 
-def _remove_suffix(word):
-    for suf in SUFFIX:
-        if word.endswith(suf) and len(word) - len(suf) >= MIN_ROOT_LEN:
-            return word[: -len(suf)], True
-    return word, False
+def _starts_with_vowel(text: str) -> bool:
+    return bool(text) and text[0] in VOWELS
 
 
-def _remove_particle(word):
-    for p in PARTIKEL:
-        if word.endswith(p) and len(word) - len(p) >= MIN_ROOT_LEN:
-            return word[: -len(p)], True
-    return word, False
+def _count_syllables(word: str) -> int:
+    """Hitung jumlah suku kata berdasarkan jumlah vokal."""
+    return sum(1 for c in word if c in VOWELS)
 
 
-def _remove_sandang(word):
-    for s in SANDANG:
-        if word.endswith(s) and len(word) - len(s) >= MIN_ROOT_LEN:
-            return word[: -len(s)], True
-    return word, False
-
-
-def _remove_prefix1(word):
-    for pre in PREFIX1:
-        if word.startswith(pre) and len(word) - len(pre) >= MIN_ROOT_LEN:
-            return word[len(pre) :], True
-    return word, False
+def _is_valid_root(word: str) -> bool:
+    """Cek apakah word valid sebagai root (panjang + suku kata cukup)."""
+    return len(word) >= MIN_ROOT_LEN and _count_syllables(word) >= MIN_SYLLABLES
 
 
 def _apply_special_prefix(word):
+    """Substitusi khusus sesuai aturan Tala untuk meny/mem/peny/pem + vokal."""
     for pattern, repl in SPECIAL_PREFIX:
         m = pattern.match(word)
         if m:
@@ -59,16 +45,99 @@ def _apply_special_prefix(word):
     return word, False
 
 
-def _remove_prefix2(word):
-    # Special replacements first
+def _remove_suffix(word, removed_prefixes=None):
+    if removed_prefixes is None:
+        removed_prefixes = []
+    
+    for suf in SUFFIX:
+        if word.endswith(suf):
+            candidate = word[: -len(suf)]
+            if not _is_valid_root(candidate):
+                continue
+            
+            if suf == "kan" and any(p in removed_prefixes for p in ["ke", "peng"]):
+                continue
+            if suf == "an" and any(p in removed_prefixes for p in ["di", "meng", "ter"]):
+                continue
+            if suf == "i" and any(p in removed_prefixes for p in ["ber", "ke", "peng"]):
+                continue
+            
+            return candidate, True
+    return word, False
+
+
+def _remove_particle(word):
+    for p in PARTIKEL:
+        if word.endswith(p):
+            candidate = word[: -len(p)]
+            if len(candidate) >= MIN_ROOT_LEN:
+                return candidate, True
+    return word, False
+
+
+def _remove_sandang(word):
+    for s in SANDANG:
+        if word.endswith(s):
+            candidate = word[: -len(s)]
+            if len(candidate) >= MIN_ROOT_LEN:
+                return candidate, True
+    return word, False
+
+
+def _remove_prefix1(word):
     new, changed = _apply_special_prefix(word)
     if changed:
-        return new, True
-    # Generic di/ter/ke
-    for pre in PREFIX2:
-        if word.startswith(pre) and len(word) - len(pre) >= MIN_ROOT_LEN:
-            return word[len(pre) :], True
-    return word, False
+        if word.startswith("meny") or word.startswith("mem"):
+            return new, True, "meng"
+        elif word.startswith("peny") or word.startswith("pem"):
+            return new, True, "peng"
+
+    if word.startswith("meng") and len(word) - 4 >= MIN_ROOT_LEN:
+        return word[4:], True, "meng"
+    if word.startswith("men") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "meng"
+    if word.startswith("me") and len(word) - 2 >= MIN_ROOT_LEN:
+        return word[2:], True, "meng"
+
+    if word.startswith("peng") and len(word) - 4 >= MIN_ROOT_LEN:
+        return word[4:], True, "peng"
+    if word.startswith("pen") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "peng"
+
+    if word.startswith("di") and len(word) - 2 >= MIN_ROOT_LEN:
+        return word[2:], True, "di"
+    if word.startswith("ter") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "ter"
+    if word.startswith("ke") and len(word) - 2 >= MIN_ROOT_LEN:
+        return word[2:], True, "ke"
+
+    return word, False, None
+
+
+def _remove_prefix2(word):
+    if word.startswith("belajar"):
+        return word[3:], True, "ber"
+    if word.startswith("pelajar"):
+        return word[3:], True, "per"
+    
+    if word.startswith("be"):
+        rest = word[2:]
+        if len(rest) >= MIN_ROOT_LEN and len(rest) > 2:
+            if rest[0] not in VOWELS and rest[1:3] == "er":
+                return rest, True, "ber"
+    
+    if word.startswith("ber") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "ber"
+    if word.startswith("per") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "per"
+    if word.startswith("pel") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "per"
+    if word.startswith("pe") and len(word) - 2 >= MIN_ROOT_LEN:
+        return word[2:], True, "per"
+    if word.startswith("bel") and len(word) - 3 >= MIN_ROOT_LEN:
+        return word[3:], True, "ber"
+    
+    return word, False, None
 
 
 def stem_tala_word(word: str) -> str:
@@ -76,34 +145,30 @@ def stem_tala_word(word: str) -> str:
         return word
 
     original = word
-    changed_any = False
+    removed_prefixes = []
 
-    # 1) Hilangkan partikel
     word, changed = _remove_particle(word)
-    changed_any = changed_any or changed
-
-    # 2) Hilangkan sandang/kepunyaan
     word, changed = _remove_sandang(word)
-    changed_any = changed_any or changed
+    
+    word, changed, prefix1 = _remove_prefix1(word)
+    if prefix1:
+        removed_prefixes.append(prefix1)
 
-    # 3) Hilangkan awalan 1
-    word, changed = _remove_prefix1(word)
-    changed_any = changed_any or changed
-
-    # 4) Cabang aturan
-    # Cabang A: jika penghilangan akhiran memungkinkan, lakukan akhiran lalu awalan2
-    temp_word, suf_changed = _remove_suffix(word)
+    temp_word, suf_changed = _remove_suffix(word, removed_prefixes)
     if suf_changed:
         word = temp_word
-        word, _ = _remove_prefix2(word)
+        word, changed, prefix2 = _remove_prefix2(word)
+        if prefix2:
+            removed_prefixes.append(prefix2)
     else:
-        # Cabang B: awalan2 dulu, lalu akhiran
-        word, _ = _remove_prefix2(word)
-        word, _ = _remove_suffix(word)
+        word, changed, prefix2 = _remove_prefix2(word)
+        if prefix2:
+            removed_prefixes.append(prefix2)
+        word, _ = _remove_suffix(word, removed_prefixes)
 
-    # Final: jika hasil terlalu pendek, kembalikan asal
-    if len(word) < MIN_ROOT_LEN:
+    if not _is_valid_root(word):
         return original
+    
     return word
 
 
