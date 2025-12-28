@@ -109,7 +109,7 @@ class MinerApp:
         
         index_btn = tk.Button(
             folder_frame,
-            text="🔄 Index Documents",
+            text=" Index Documents",
             command=self.start_indexing,
             bg="#27ae60",
             fg="white",
@@ -185,7 +185,7 @@ class MinerApp:
         # === RESULTS SECTION ===
         results_frame = tk.LabelFrame(
             main_frame,
-            text="📄 Search Results",
+            text=" Search Results",
             font=("Arial", 12, "bold"),
             bg="#f0f0f0",
             padx=10,
@@ -279,7 +279,7 @@ class MinerApp:
             # Update UI
             self.progress.stop()
             self.status_label.config(
-                text=f"Status: ✓ {len(self.processed_docs)} documents indexed successfully",
+                text=f"Status:  {len(self.processed_docs)} documents indexed successfully",
                 fg="#27ae60"
             )
             messagebox.showinfo("Success", f"{len(self.processed_docs)} dokumen berhasil diindeks!")
