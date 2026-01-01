@@ -8,11 +8,6 @@ class InvertedIndex:
         self.documents = {}
 
     def build_index(self, processed_documents, tfidf_model):
-        """
-        Build inverted index from processed documents.
-        processed_documents: list of dict {'id': int, 'tokens': [list], 'metadata': dict}
-        tfidf_model: trained TFIDF instance
-        """
         self.index = {}
         self.documents = {}
         
