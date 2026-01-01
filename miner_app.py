@@ -1,8 +1,3 @@
-"""
-MINER - Mining Information Retrieval
-Complete Multi-Page Desktop Application
-Matching Web Template Design (3 Pages: Search, Results, Upload)
-"""
 
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
