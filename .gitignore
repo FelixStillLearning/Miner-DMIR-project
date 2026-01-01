@@ -43,4 +43,11 @@ Desktop.ini
 # Matplotlib cache
 .matplotlib/
 
+# Local config
+.python-version
+
+# Project data
+data/raw/*
+!data/raw/tokenizing_test.txt
+
 github/
