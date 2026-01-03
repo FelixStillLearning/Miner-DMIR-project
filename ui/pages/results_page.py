@@ -1,6 +1,6 @@
 """Halaman hasil pencarian."""
 import customtkinter as ctk
-from ui.components import create_section_header, create_chip
+from ui.components import create_section_header, create_chip, create_result_card
 
 
 def render_results_page(app):
@@ -80,6 +80,12 @@ def render_results_page(app):
     )
     create_chip(
         chips,
+        f"Waktu: {app.current_search_time_ms:.1f} ms",
+        app.colors,
+        app.fonts,
+    )
+    create_chip(
+        chips,
         "Pratinjau dengan highlight",
         app.colors,
         app.fonts,
@@ -91,7 +97,7 @@ def render_results_page(app):
     results_frame.grid_columnconfigure(0, weight=1)
 
     for rank, res in enumerate(app.current_results, 1):
-        app.create_result_card_v2(
+        create_result_card(
             results_frame,
             rank,
             res['metadata']['filename'],
@@ -100,4 +106,8 @@ def render_results_page(app):
             res.get('preview', ''),
             res.get('query_terms', []),
             raw_score=res.get('raw_score'),
+            colors=app.colors,
+            fonts=app.fonts,
+            images=app.images,
+            open_file_cb=app.open_file,
         )

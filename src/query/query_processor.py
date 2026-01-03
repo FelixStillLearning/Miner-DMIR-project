@@ -22,7 +22,7 @@ class QueryProcessor:
 
     def transform_query(self, query_text):
         """
-        Mengubah kueri menjadi frekuensi term untuk LM (tanpa tf-idf).
+        Mengubah kueri menjadi frekuensi term untuk LM ]
         """
         tokens = self.preprocess_query(query_text)
         term_freq = Counter(tokens)

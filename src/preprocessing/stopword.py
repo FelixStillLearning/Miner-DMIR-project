@@ -23,31 +23,31 @@ def remove_stopwords(tokens):
     filtered_tokens = [word for word in tokens if word.lower() not in stopwords]
     return filtered_tokens
 
-def tampilkan_hasil_stopword(tokens_asli, tokens_bersih):
-    terhapus = len(tokens_asli) - len(tokens_bersih)
-    print(f"\nJumlah kata sebelum stopword removal: {len(tokens_asli)}")
-    print(f"Jumlah kata setelah stopword removal: {len(tokens_bersih)}")
-    print(f"Jumlah stopword yang terhapus: {terhapus}")
+# def tampilkan_hasil_stopword(tokens_asli, tokens_bersih):
+#     terhapus = len(tokens_asli) - len(tokens_bersih)
+#     print(f"\nJumlah kata sebelum stopword removal: {len(tokens_asli)}")
+#     print(f"Jumlah kata setelah stopword removal: {len(tokens_bersih)}")
+#     print(f"Jumlah stopword yang terhapus: {terhapus}")
     
-    # Tampilkan preview hasil filter (10 kata pertama)
-    if tokens_bersih:
-        preview = ' '.join(tokens_bersih[:10])
-        if len(tokens_bersih) > 10:
-            preview += "..."
-        print(f"\nPreview hasil filter: {preview}")
+#     # Tampilkan preview hasil filter (10 kata pertama)
+#     if tokens_bersih:
+#         preview = ' '.join(tokens_bersih[:10])
+#         if len(tokens_bersih) > 10:
+#             preview += "..."
+#         print(f"\nPreview hasil filter: {preview}")
 
-def identifikasi_stopword_terhapus(tokens_asli, tokens_bersih):
-    # Mengidentifikasi kata-kata yang dihapus (stopwords)
-    set_asli = set(tokens_asli)
-    set_bersih = set(tokens_bersih)
-    stopwords_terhapus = list(set_asli - set_bersih)
-    return sorted(stopwords_terhapus)
+# def identifikasi_stopword_terhapus(tokens_asli, tokens_bersih):
+#     # Mengidentifikasi kata-kata yang dihapus (stopwords)
+#     set_asli = set(tokens_asli)
+#     set_bersih = set(tokens_bersih)
+#     stopwords_terhapus = list(set_asli - set_bersih)
+#     return sorted(stopwords_terhapus)
 
-def tampilkan_stopword_terhapus(stopwords_terhapus):
-    if not stopwords_terhapus:
-        print("\nTidak ada stopword yang terhapus")
-        return
+# def tampilkan_stopword_terhapus(stopwords_terhapus):
+#     if not stopwords_terhapus:
+#         print("\nTidak ada stopword yang terhapus")
+#         return
     
-    print(f"\nDaftar stopword yang terhapus ({len(stopwords_terhapus)} kata):")
-    for kata in stopwords_terhapus:
-        print(f"  - {kata}")
+#     print(f"\nDaftar stopword yang terhapus ({len(stopwords_terhapus)} kata):")
+#     for kata in stopwords_terhapus:
+#         print(f"  - {kata}")

@@ -1,5 +1,7 @@
 """Komponen UI reuseable untuk MINER."""
 import customtkinter as ctk
+from tkinter import messagebox
+from src.utils.view_helpers import highlight_text
 
 
 def create_section_header(parent, title, accent, subtitle, colors, fonts, badge=None):
@@ -98,3 +100,133 @@ def create_panel(parent, title, body, colors, fonts, icon=""):
     ).pack(anchor="w", padx=18, pady=(0, 16))
 
     return panel
+
+
+def create_result_card(
+    parent,
+    rank,
+    filename,
+    score,
+    filepath,
+    preview_text,
+    query_terms,
+    raw_score,
+    colors,
+    fonts,
+    images,
+    open_file_cb,
+):
+    """Kartu hasil untuk LM Dirichlet (score sudah dinormalisasi 0-1)."""
+    query_terms = query_terms or []
+
+    if score >= 0.66:
+        score_color = colors["success"]
+        bar_color = "#27ae60"
+    elif score >= 0.33:
+        score_color = colors["warning"]
+        bar_color = "#f39c12"
+    else:
+        score_color = colors["text_secondary"]
+        bar_color = colors["primary"]
+
+    card = ctk.CTkFrame(
+        parent,
+        fg_color=colors["surface_dark"],
+        corner_radius=12,
+        border_width=1,
+        border_color=colors["border_dark"],
+    )
+    card.grid(row=rank - 1, column=0, sticky="ew", pady=8)
+    card.grid_columnconfigure(1, weight=1)
+
+    icon = ctk.CTkLabel(card, text="", font=fonts["card_title"], width=32, image=images.get("result"), compound="left")
+    icon.grid(row=0, column=0, rowspan=3, padx=20, pady=20)
+
+    content = ctk.CTkFrame(card, fg_color="transparent")
+    content.grid(row=0, column=1, sticky="ew", pady=20, padx=(0, 20))
+
+    ctk.CTkLabel(
+        content,
+        text=f"{rank}. {filename}",
+        font=fonts["card_title"],
+        text_color=colors["primary"],
+        anchor="w",
+    ).pack(anchor="w")
+
+    ctk.CTkLabel(
+        content,
+        text=filepath,
+        font=fonts["body"],
+        text_color=colors["text_secondary"],
+        anchor="w",
+    ).pack(anchor="w", pady=(5, 0))
+
+    if preview_text:
+        preview_frame = ctk.CTkFrame(content, fg_color=colors["bg_dark"], corner_radius=8)
+        preview_frame.pack(fill="x", pady=(10, 0))
+
+        highlighted = highlight_text(preview_text, query_terms)
+        ctk.CTkLabel(
+            preview_frame,
+            text=highlighted,
+            font=fonts["body"],
+            text_color="#d0d0d0",
+            anchor="w",
+            wraplength=700,
+            justify="left",
+        ).pack(padx=15, pady=10, anchor="w")
+
+    ctk.CTkButton(
+        card,
+        text="Buka",
+        command=lambda: open_file_cb(filepath),
+        fg_color=colors["border_dark"],
+        hover_color=colors["primary"],
+        font=fonts["body"],
+        width=90,
+        height=32,
+    ).grid(row=1, column=1, sticky="w", padx=(0, 20), pady=(0, 20))
+
+    score_frame = ctk.CTkFrame(card, fg_color="transparent")
+    score_frame.grid(row=0, column=2, rowspan=3, padx=20, pady=20)
+
+    ctk.CTkLabel(
+        score_frame,
+        text="RELEVANSI",
+        font=fonts["label"],
+        text_color=colors["text_secondary"],
+    ).pack()
+
+    ctk.CTkLabel(
+        score_frame,
+        text=f"{score:.2f}",
+        font=ctk.CTkFont(family="Poppins", size=22, weight="bold"),
+        text_color=score_color,
+    ).pack(pady=(5, 5))
+
+    progress = ctk.CTkProgressBar(
+        score_frame,
+        width=100,
+        height=8,
+        progress_color=bar_color,
+        fg_color=colors["border_dark"],
+    )
+    progress.set(min(max(score, 0), 1))
+    progress.pack()
+
+    def show_detail():
+        raw_txt = "n/a" if raw_score is None else f"{raw_score:.4f}"
+        messagebox.showinfo("Detail Skor", f"Raw score (log-prob): {raw_txt}")
+
+    ctk.CTkButton(
+        score_frame,
+        text="Detail",
+        command=show_detail,
+        fg_color=colors["border_dark"],
+        hover_color=colors["primary"],
+        font=fonts["caption"],
+        width=90,
+        height=26,
+    ).pack(pady=(8, 0))
+
+    return card

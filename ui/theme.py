@@ -25,4 +25,5 @@ def build_fonts():
         "body": ctk.CTkFont(family="Poppins", size=14),
         "card_title": ctk.CTkFont(family="Poppins", size=18, weight="bold"),
         "label": ctk.CTkFont(family="Poppins", size=12, weight="bold"),
+        "caption": ctk.CTkFont(family="Poppins", size=11),
     }

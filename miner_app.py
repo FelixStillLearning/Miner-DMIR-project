@@ -5,6 +5,7 @@ import os
 import threading
 import subprocess
 import platform
+import time
 from pathlib import Path
 from ui.theme import COLORS, build_fonts
 from ui.sidebar import build_sidebar
@@ -15,7 +16,7 @@ from ui.assets import load_images
 from src.pipeline import process_directory, build_models, SUPPORTED_EXT
 
 # Import backend helpers
-from src.utils.utils import baca_txt, baca_docx, baca_pdf
+from src.utils.view_helpers import get_preview_snippet
 
 # Set appearance
 ctk.set_appearance_mode("dark")
@@ -41,6 +42,7 @@ class MinerApp(ctk.CTk):
         self.processed_docs = []
         self.current_query = ""
         self.current_results = []
+        self.current_search_time_ms = 0.0
 
         # Assets
         self.images = {}
@@ -107,114 +109,6 @@ class MinerApp(ctk.CTk):
         elif page == "upload":
             render_upload_page(self)
     
-    def create_result_card_v2(self, parent, rank, filename, score, filepath, preview_text="", query_terms=None, raw_score=None):
-        """Enhanced result card untuk hasil LM Dirichlet (score sudah dinormalisasi 0-1)."""
-        query_terms = query_terms or []
-
-        if score >= 0.66:
-            score_color = self.colors["success"]
-            bar_color = "#27ae60"
-        elif score >= 0.33:
-            score_color = self.colors["warning"]
-            bar_color = "#f39c12"
-        else:
-            score_color = self.colors["text_secondary"]
-            bar_color = self.colors["primary"]
-        
-        # Card
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=self.colors["surface_dark"],
-            corner_radius=12,
-            border_width=1,
-            border_color=self.colors["border_dark"]
-        )
-        card.grid(row=rank-1, column=0, sticky="ew", pady=8)
-        card.grid_columnconfigure(1, weight=1)
-        
-        # Icon
-        icon = ctk.CTkLabel(card, text="", font=self.fonts["card_title"], width=32, image=self.images.get("result"), compound="left")
-        icon.grid(row=0, column=0, rowspan=3, padx=20, pady=20)
-        
-        # Content
-        content = ctk.CTkFrame(card, fg_color="transparent")
-        content.grid(row=0, column=1, sticky="ew", pady=20, padx=(0, 20))
-        
-        # Filename
-        ctk.CTkLabel(
-            content,
-            text=f"{rank}. {filename}",
-            font=self.fonts["card_title"],
-            text_color=self.colors["primary"],
-            anchor="w"
-        ).pack(anchor="w")
-        
-        # Path
-        ctk.CTkLabel(
-            content,
-            text=filepath,
-            font=self.fonts["body"],
-            text_color=self.colors["text_secondary"],
-            anchor="w"
-        ).pack(anchor="w", pady=(5, 0))
-        
-        # Preview
-        if preview_text:
-            preview_frame = ctk.CTkFrame(content, fg_color=self.colors["bg_dark"], corner_radius=8)
-            preview_frame.pack(fill="x", pady=(10, 0))
-            
-            highlighted = self.highlight_text(preview_text, query_terms)
-            ctk.CTkLabel(
-                preview_frame,
-                text=highlighted,
-                font=self.fonts["body"],
-                text_color="#d0d0d0",
-                anchor="w",
-                wraplength=700,
-                justify="left"
-            ).pack(padx=15, pady=10, anchor="w")
-        
-        # Open button
-        ctk.CTkButton(
-            card,
-            text="Buka",
-            command=lambda: self.open_file(filepath),
-            fg_color=self.colors["border_dark"],
-            hover_color=self.colors["primary"],
-            font=self.fonts["body"],
-            width=90,
-            height=32
-        ).grid(row=1, column=1, sticky="w", padx=(0, 20), pady=(0, 20))
-        
-        # Score
-        score_frame = ctk.CTkFrame(card, fg_color="transparent")
-        score_frame.grid(row=0, column=2, rowspan=3, padx=20, pady=20)
-        
-        ctk.CTkLabel(
-            score_frame,
-            text="RELEVANSI",
-            font=self.fonts["label"],
-            text_color=self.colors["text_secondary"]
-        ).pack()
-        
-        label_text = f"{score:.2f}" if raw_score is None else f"{score:.2f} (raw {raw_score:.2f})"
-        ctk.CTkLabel(
-            score_frame,
-            text=label_text,
-            font=ctk.CTkFont(family="Poppins", size=22, weight="bold"),
-            text_color=score_color
-        ).pack(pady=(5, 5))
-        
-        progress = ctk.CTkProgressBar(
-            score_frame,
-            width=100,
-            height=8,
-            progress_color=bar_color,
-            fg_color=self.colors["border_dark"]
-        )
-        progress.set(min(max(score, 0), 1))
-        progress.pack()
-    
     def perform_search(self):
         """Perform search and navigate to results"""
         if not self.engine:
@@ -227,11 +121,21 @@ class MinerApp(ctk.CTk):
             return
         
         try:
+            # Loading indicator
+            if hasattr(self, "search_button") and self.search_button.winfo_exists():
+                self.search_button.configure(state="disabled", text="Mencari…")
+            if hasattr(self, "search_status") and self.search_status.winfo_exists():
+                self.search_status.configure(text="Sedang mencari…")
+
+            start = time.perf_counter()
             # Process query
             q_vector, q_tokens = self.query_processor.transform_query(query)
 
             # Search dengan LM Dirichlet
             results = self.engine.search(q_vector, top_k=20)
+
+            elapsed_ms = (time.perf_counter() - start) * 1000
+            self.current_search_time_ms = elapsed_ms
 
             # Normalisasi skor untuk tampilan (0-1) sambil simpan raw log-prob
             if results:
@@ -241,10 +145,12 @@ class MinerApp(ctk.CTk):
                 for res in results:
                     res['raw_score'] = res['score']
                     res['score'] = (res['score'] - min_s) / denom
+                    # keep hits for display
+                    res['hits'] = res.get('hits', 0)
 
             # Add previews
             for res in results:
-                preview = self.get_preview_snippet(
+                preview = get_preview_snippet(
                     res['metadata']['filepath'],
                     q_tokens,
                     max_length=200
@@ -261,6 +167,11 @@ class MinerApp(ctk.CTk):
             
         except Exception as e:
             messagebox.showerror("Error", f"Search failed: {str(e)}")
+        finally:
+            if hasattr(self, "search_button") and self.search_button.winfo_exists():
+                self.search_button.configure(state="normal", text="Cari")
+            if hasattr(self, "search_status") and self.search_status.winfo_exists():
+                self.search_status.configure(text="")
     
     def browse_and_index(self):
         """Browse folder and index documents"""
@@ -319,19 +230,10 @@ class MinerApp(ctk.CTk):
             
         except Exception as e:
             self.after(0, lambda: self.upload_status.configure(
-                text="❌ Error saat indexing",
+                text=" Error saat indexing",
                 text_color=self.colors["danger"]
             ))
-            self.after(0, lambda: messagebox.showerror("Error", f"Indexing failed: {str(e)}"))
-    
-    def highlight_text(self, text, query_terms):
-        """Highlight query terms in text"""
-        highlighted = text
-        for term in query_terms:
-            import re
-            pattern = re.compile(re.escape(term), re.IGNORECASE)
-            highlighted = pattern.sub(f"⟪{term.upper()}⟫", highlighted)
-        return highlighted
+            self.after(0, lambda err=e: messagebox.showerror("Error", f"Indexing failed: {str(err)}"))
     
     def open_file(self, filepath):
         """Open file with default application"""
@@ -345,48 +247,6 @@ class MinerApp(ctk.CTk):
         except Exception as e:
             messagebox.showerror("Error", f"Tidak dapat membuka file: {str(e)}")
     
-    def get_preview_snippet(self, filepath, query_terms, max_length=200):
-        """Get preview snippet from document"""
-        try:
-            ext = os.path.splitext(filepath)[1].lower()
-            if ext == '.txt':
-                text = baca_txt(filepath)
-            elif ext == '.docx':
-                text = baca_docx(filepath)
-            elif ext == '.pdf':
-                text = baca_pdf(filepath)
-            else:
-                return ""
-            
-            text = text.replace('\n', ' ').replace('\r', ' ')
-            text = ' '.join(text.split())
-            
-            best_snippet = ""
-            for term in query_terms:
-                import re
-                pattern = re.compile(re.escape(term), re.IGNORECASE)
-                match = pattern.search(text)
-                if match:
-                    start = max(0, match.start() - 50)
-                    end = min(len(text), match.end() + 150)
-                    snippet = text[start:end]
-                    if start > 0:
-                        snippet = "..." + snippet
-                    if end < len(text):
-                        snippet = snippet + "..."
-                    best_snippet = snippet
-                    break
-            
-            if not best_snippet:
-                best_snippet = text[:max_length]
-                if len(text) > max_length:
-                    best_snippet += "..."
-            
-            return best_snippet
-            
-        except Exception as e:
-            return f"[Preview tidak tersedia]"
-
 
 def main():
     app = MinerApp()

@@ -57,7 +57,7 @@ def render_search_page(app):
     app.search_entry.grid(row=0, column=0, sticky="ew", padx=18, pady=10)
     app.search_entry.bind("<Return>", lambda e: app.perform_search())
 
-    ctk.CTkButton(
+    app.search_button = ctk.CTkButton(
         bar,
         text="Cari",
         command=app.perform_search,
@@ -67,7 +67,17 @@ def render_search_page(app):
         width=120,
         height=44,
         corner_radius=10,
-    ).grid(row=0, column=1, padx=10, pady=10)
+    )
+    app.search_button.grid(row=0, column=1, padx=10, pady=10)
+
+    app.search_status = ctk.CTkLabel(
+        search_inner,
+        text="",
+        font=app.fonts["caption"],
+        text_color=app.colors["text_secondary"],
+        anchor="w",
+    )
+    app.search_status.grid(row=2, column=0, sticky="w", pady=(6, 0))
 
     chips_frame = ctk.CTkFrame(hero, fg_color="transparent")
     chips_frame.pack(pady=16)
@@ -93,7 +103,7 @@ def render_search_page(app):
     create_panel(
         left_panel,
         "Alur Pencarian",
-        "1) Baca & bersihkan dokumen → 2) Tokenisasi → 3) Stopword removal → 4) Stemming Tala → 5) TF-IDF & Inverted Index → 6) Pencarian berbasis cosinus.",
+        "1) Baca & bersihkan dokumen → 2) Tokenisasi → 3) Stopword removal → 4) Stemming Tala → 5) Inverted Index → 6) Pencarian LM (Dirichlet).",
         app.colors,
         app.fonts,
         icon="",

@@ -2,8 +2,6 @@ import re
 
 PARTIKEL = ("lah", "kah", "pun")
 SANDANG = ("nya", "ku", "mu")
-PREFIX1_GENERIC = ("meng", "men", "mem", "me", "peng", "pen", "pem", "di", "ter", "ke")
-PREFIX2 = ("ber", "bel", "be", "per", "pel", "pe")
 SUFFIX = ("kan", "an", "i")
 
 SPECIAL_PREFIX = (
@@ -18,10 +16,6 @@ SPECIAL_PREFIX = (
 MIN_ROOT_LEN = 2
 MIN_SYLLABLES = 2 
 VOWELS = set("aiueo")
-
-
-def _starts_with_vowel(text: str) -> bool:
-    return bool(text) and text[0] in VOWELS
 
 
 def _count_syllables(word: str) -> int:
@@ -176,27 +170,27 @@ def Stem_Tala_tokenizing(tokens):
     return [stem_tala_word(tok) for tok in tokens if tok]
 
 
-def hitung_frekuensi_stem_tala(stemmed_tokens):
-    freq = {}
-    for token in stemmed_tokens:
-        freq[token] = freq.get(token, 0) + 1
-    return dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
+# def hitung_frekuensi_stem_tala(stemmed_tokens):
+#     freq = {}
+#     for token in stemmed_tokens:
+#         freq[token] = freq.get(token, 0) + 1
+#     return dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
 
 
-def tampilkan_hasil_stem_tala(freq_stem):
-    for token, count in freq_stem.items():
-        print(f"{token}: {count}")
+# def tampilkan_hasil_stem_tala(freq_stem):
+#     for token, count in freq_stem.items():
+#         print(f"{token}: {count}")
 
 
-def identifikasi_kata_gagal_stem_tala(tokens_asli, tokens_stem):
-    gagal = [original for original, stem in zip(tokens_asli, tokens_stem) if original == stem and len(original) > 3]
-    return list(set(gagal))
+# def identifikasi_kata_gagal_stem_tala(tokens_asli, tokens_stem):
+#     gagal = [original for original, stem in zip(tokens_asli, tokens_stem) if original == stem and len(original) > 3]
+#     return list(set(gagal))
 
 
-def tampilkan_kata_gagal_stem_tala(kata_gagal):
-    if not kata_gagal:
-        print("Tidak ada kata yang gagal di-stem (Tala)")
-        return
-    print(f"\nTotal kata yang tidak/gagal di stem (Tala): {len(kata_gagal)} kata")
-    for kata in sorted(kata_gagal):
-        print(kata)
+# def tampilkan_kata_gagal_stem_tala(kata_gagal):
+#     if not kata_gagal:
+#         print("Tidak ada kata yang gagal di-stem (Tala)")
+#         return
+#     print(f"\nTotal kata yang tidak/gagal di stem (Tala): {len(kata_gagal)} kata")
+#     for kata in sorted(kata_gagal):
+#         print(kata)
