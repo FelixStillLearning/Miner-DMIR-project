@@ -1,5 +1,5 @@
 from collections import Counter
-from src.preprocessing.tokenizing import tokenizing
+from src.utils.utils import tokenizing
 from src.preprocessing.stopword import remove_stopwords
 from src.preprocessing.tala_stemmer import Stem_Tala_tokenizing
 from src.utils.utils import bersihkan_text

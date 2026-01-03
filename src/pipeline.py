@@ -1,7 +1,6 @@
 """Pipeline utilitas untuk preprocessing dan indexing dokumen."""
 import os
-from src.utils.utils import baca_txt, baca_docx, baca_pdf, bersihkan_text
-from src.preprocessing.tokenizing import tokenizing
+from src.utils.utils import baca_txt, baca_docx, baca_pdf, bersihkan_text, tokenizing
 from src.preprocessing.stopword import remove_stopwords
 from src.preprocessing.tala_stemmer import Stem_Tala_tokenizing
 from src.indexing.inverted_index import InvertedIndex

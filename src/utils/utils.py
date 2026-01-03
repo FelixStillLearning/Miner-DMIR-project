@@ -31,6 +31,10 @@ def bersihkan_text(text):
     text = re.sub(r'[""''…—–-]', '', text)
     text = re.sub(r'\d+', '', text)
     text = ' '.join(text.split())
-    return text 
+    return text
+
+def tokenizing(text):
+    """Tokenisasi sederhana dengan split spasi."""
+    return text.split() if text else [] 
 
 
