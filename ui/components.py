@@ -1,7 +1,35 @@
 """Komponen UI reuseable untuk MINER."""
 import customtkinter as ctk
 from tkinter import messagebox
-from src.utils.view_helpers import highlight_text
+import re
+
+
+def _insert_highlighted_text(textbox, text, query_terms, highlight_color="#5cff3b"):
+    """Insert text dengan term kueri diberi warna highlight."""
+    textbox.configure(state="normal")
+    textbox.delete("1.0", "end")
+    
+    # Tandai semua term dengan marker khusus
+    marked_text = text
+    for term in query_terms:
+        marked_text = re.sub(
+            f"({re.escape(term)})",
+            r"<<<\1>>>",
+            marked_text,
+            flags=re.IGNORECASE
+        )
+    
+    # Split dan insert dengan tag
+    parts = re.split(r"(<<<.*?>>>)", marked_text)
+    for part in parts:
+        if part.startswith("<<<") and part.endswith(">>>"):
+            clean = part[3:-3]
+            textbox.insert("end", clean, "highlight")
+        else:
+            textbox.insert("end", part)
+    
+    # Configure tag warna (CTkTextbox tidak support font di tag)
+    textbox.tag_config("highlight", foreground=highlight_color)
 
 
 def create_section_header(parent, title, accent, subtitle, colors, fonts, badge=None):
@@ -165,16 +193,21 @@ def create_result_card(
         preview_frame = ctk.CTkFrame(content, fg_color=colors["bg_dark"], corner_radius=8)
         preview_frame.pack(fill="x", pady=(10, 0))
 
-        highlighted = highlight_text(preview_text, query_terms)
-        ctk.CTkLabel(
+        # Gunakan CTkTextbox untuk colored highlighting
+        preview_box = ctk.CTkTextbox(
             preview_frame,
-            text=highlighted,
             font=fonts["body"],
+            fg_color=colors["bg_dark"],
             text_color="#d0d0d0",
-            anchor="w",
-            wraplength=700,
-            justify="left",
-        ).pack(padx=15, pady=10, anchor="w")
+            wrap="word",
+            height=60,
+            activate_scrollbars=False,
+        )
+        preview_box.pack(padx=15, pady=10, fill="x")
+        
+        # Insert text dengan highlight berwarna
+        _insert_highlighted_text(preview_box, preview_text, query_terms)
+        preview_box.configure(state="disabled")
 
     ctk.CTkButton(
         card,
