@@ -29,7 +29,7 @@ def render_results_page(app):
             text="Mulai dari halaman Pencarian untuk melihat hasil.",
             font=app.fonts["body"],
             text_color=app.colors["text_secondary"],
-        ).pack(pady=(0, 16))
+        ).pack(pady=(0, 12))
 
         ctk.CTkButton(
             state,
@@ -60,7 +60,7 @@ def render_results_page(app):
         f"Menampilkan {len(app.current_results)} dokumen relevan",
         app.colors,
         app.fonts,
-        badge="Ranking Cosine",
+        badge="Ranking LM Dirichlet",
     )
 
     chips = ctk.CTkFrame(header_frame, fg_color="transparent")
@@ -99,4 +99,5 @@ def render_results_page(app):
             res['metadata']['filepath'],
             res.get('preview', ''),
             res.get('query_terms', []),
+            raw_score=res.get('raw_score'),
         )

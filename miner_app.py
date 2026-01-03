@@ -35,7 +35,6 @@ class MinerApp(ctk.CTk):
         self.fonts = build_fonts()
         
         # Backend components
-        self.tfidf_model = None
         self.inverted_index = None
         self.query_processor = None
         self.engine = None
@@ -108,18 +107,19 @@ class MinerApp(ctk.CTk):
         elif page == "upload":
             render_upload_page(self)
     
-    def create_result_card_v2(self, parent, rank, filename, score, filepath, preview_text="", query_terms=[]):
-        """Enhanced result card for results page"""
-        # Determine colors - ADJUSTED for realistic TF-IDF scores
-        if score >= 0.3:  # Changed from 0.7
+    def create_result_card_v2(self, parent, rank, filename, score, filepath, preview_text="", query_terms=None, raw_score=None):
+        """Enhanced result card untuk hasil LM Dirichlet (score sudah dinormalisasi 0-1)."""
+        query_terms = query_terms or []
+
+        if score >= 0.66:
             score_color = self.colors["success"]
             bar_color = "#27ae60"
-        elif score >= 0.15:  # Changed from 0.4
+        elif score >= 0.33:
             score_color = self.colors["warning"]
             bar_color = "#f39c12"
         else:
-            score_color = self.colors["danger"]
-            bar_color = "#e74c3c"
+            score_color = self.colors["text_secondary"]
+            bar_color = self.colors["primary"]
         
         # Card
         card = ctk.CTkFrame(
@@ -197,9 +197,10 @@ class MinerApp(ctk.CTk):
             text_color=self.colors["text_secondary"]
         ).pack()
         
+        label_text = f"{score:.2f}" if raw_score is None else f"{score:.2f} (raw {raw_score:.2f})"
         ctk.CTkLabel(
             score_frame,
-            text=f"{score:.2f}",
+            text=label_text,
             font=ctk.CTkFont(family="Poppins", size=22, weight="bold"),
             text_color=score_color
         ).pack(pady=(5, 5))
@@ -228,10 +229,19 @@ class MinerApp(ctk.CTk):
         try:
             # Process query
             q_vector, q_tokens = self.query_processor.transform_query(query)
-            
-            # Search
+
+            # Search dengan LM Dirichlet
             results = self.engine.search(q_vector, top_k=20)
-            
+
+            # Normalisasi skor untuk tampilan (0-1) sambil simpan raw log-prob
+            if results:
+                raw_scores = [r['score'] for r in results]
+                min_s, max_s = min(raw_scores), max(raw_scores)
+                denom = (max_s - min_s) if max_s != min_s else 1.0
+                for res in results:
+                    res['raw_score'] = res['score']
+                    res['score'] = (res['score'] - min_s) / denom
+
             # Add previews
             for res in results:
                 preview = self.get_preview_snippet(
@@ -283,7 +293,8 @@ class MinerApp(ctk.CTk):
 
             self.after(0, lambda: self.upload_progress.set(0.7))
 
-            self.tfidf_model, self.inverted_index, self.query_processor, self.engine = build_models(self.processed_docs)
+            # Gunakan default mu=2000; dapat diubah bila perlu
+            self.inverted_index, self.query_processor, self.engine = build_models(self.processed_docs)
             
             self.after(0, lambda: self.upload_progress.set(1.0))
             

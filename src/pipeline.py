@@ -4,7 +4,6 @@ from src.utils.utils import baca_txt, baca_docx, baca_pdf, bersihkan_text
 from src.preprocessing.tokenizing import tokenizing
 from src.preprocessing.stopword import remove_stopwords
 from src.preprocessing.tala_stemmer import Stem_Tala_tokenizing
-from src.feature_extraction.tfidf import TFIDF
 from src.indexing.inverted_index import InvertedIndex
 from src.query.query_processor import QueryProcessor
 from src.retrieval.retrieval_engine import RetrievalEngine
@@ -72,15 +71,11 @@ def process_directory(directory, ekstensi_file=None, progress_cb=None):
 
 
 def build_models(processed_docs):
-    """Bangun TF-IDF, inverted index, query processor, dan retrieval engine."""
-    tfidf_model = TFIDF()
-    corpus_tokens = [doc["tokens"] for doc in processed_docs]
-    tfidf_model.calculate_idf(corpus_tokens)
-
+    """Bangun inverted index, query processor, dan retrieval engine (LM Dirichlet)."""
     inverted_index = InvertedIndex()
-    inverted_index.build_index(processed_docs, tfidf_model)
+    inverted_index.build_index(processed_docs)
 
-    query_processor = QueryProcessor(tfidf_model)
-    engine = RetrievalEngine(inverted_index, tfidf_model)
+    query_processor = QueryProcessor()
+    engine = RetrievalEngine(inverted_index)
 
-    return tfidf_model, inverted_index, query_processor, engine
+    return inverted_index, query_processor, engine
