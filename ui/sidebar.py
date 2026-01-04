@@ -60,6 +60,7 @@ def build_sidebar(app):
 
     add_nav_button("search", "Pencarian")
     add_nav_button("results", "Hasil Pencarian")
+    add_nav_button("documents", "Dokumen")
     add_nav_button("upload", "Upload Dokumen")
 
     # Statistik bawah

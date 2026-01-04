@@ -12,6 +12,7 @@ from ui.sidebar import build_sidebar
 from ui.pages.search_page import render_search_page
 from ui.pages.results_page import render_results_page
 from ui.pages.upload_page import render_upload_page
+from ui.pages.documents_page import render_documents_page
 from ui.assets import load_images
 from src.pipeline import process_directory, build_models, SUPPORTED_EXT
 
@@ -106,6 +107,8 @@ class MinerApp(ctk.CTk):
             render_search_page(self)
         elif page == "results":
             render_results_page(self)
+        elif page == "documents":
+            render_documents_page(self)
         elif page == "upload":
             render_upload_page(self)
     

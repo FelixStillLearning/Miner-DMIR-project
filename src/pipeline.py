@@ -26,7 +26,7 @@ def preprocess_text(text):
     tokens = tokenizing(clean_text)
     tokens_no_stop = remove_stopwords(tokens)
     tokens_stem = Stem_Tala_tokenizing(tokens_no_stop)
-    return tokens_stem, tokens, tokens_no_stop
+    return tokens_stem, tokens, tokens_no_stop, clean_text
 
 
 def process_directory(directory, ekstensi_file=None, progress_cb=None):
@@ -45,7 +45,16 @@ def process_directory(directory, ekstensi_file=None, progress_cb=None):
     for idx, (filename, filepath, ext) in enumerate(files, 1):
         try:
             raw_text = _read_file(filepath, ext)
-            tokens_stem, tokens_raw, tokens_no_stop = preprocess_text(raw_text)
+            tokens_stem, tokens_raw, tokens_no_stop, clean_text = preprocess_text(raw_text)
+            
+            # Hitung kata dasar unik
+            unique_stems = set(tokens_stem)
+            
+            # Hitung frekuensi kata dasar (untuk tabel)
+            from collections import Counter
+            stem_freq = Counter(tokens_stem)
+            # Sort by frequency descending
+            stem_freq_sorted = sorted(stem_freq.items(), key=lambda x: x[1], reverse=True)
 
             processed_docs.append({
                 "id": idx,
@@ -58,6 +67,15 @@ def process_directory(directory, ekstensi_file=None, progress_cb=None):
                     "tokens": len(tokens_raw),
                     "after_stopword": len(tokens_no_stop),
                     "after_stem": len(tokens_stem),
+                    "unique_stems": len(unique_stems),
+                },
+                "preprocessing": {
+                    "raw_text": raw_text[:2000],  # Simpan 2000 karakter pertama
+                    "clean_text": clean_text[:2000],
+                    "tokens_raw": tokens_raw[:100],  # Simpan 100 token pertama
+                    "tokens_no_stop": tokens_no_stop[:100],
+                    "tokens_stem": tokens_stem[:100],
+                    "stem_frequency": stem_freq_sorted,  # Full frequency table sorted
                 },
             })
 
