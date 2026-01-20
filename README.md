@@ -64,7 +64,3 @@ MINER is a desktop-based Information Retrieval System designed to help users eff
 4. **Viewing Results**:
    - Click "Open" on any result card to open the original file.
    - View snippet previews to see context matches.
-
-## License
-
-[Add License Information Here]
